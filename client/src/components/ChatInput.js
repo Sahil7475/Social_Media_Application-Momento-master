@@ -22,7 +22,7 @@ const ChatInput = ({ fetchMessages }) => {
 
 
     const onEmojiClick = (event, emojiObject) => {
-        // setNewMessage(newmessage + emojiObject.emoji);
+        setNewMessage(prevMessage => prevMessage + event.emoji);
     };
 
     const handleEmojiPickerhideShow = () => {
