@@ -9,7 +9,7 @@ import UserImage from './UserImage';
 import ChatInput from './ChatInput';
 import Message from './Message';
 import { io } from 'socket.io-client';
-const ENDPOINT = 'http://localhost:3001';
+const ENDPOINT = `${process.env.REACT_APP_BASE_URL}`;
 var socket, selectedChatCompare;
 
 
@@ -41,7 +41,7 @@ const ChatContainer = () => {
 
     const getUser = async () => {
         if(activeFriend){
-            const response = await fetch(`http://localhost:3001/users/${activeFriend}`, {
+            const response = await fetch(`${process.env.REACT_APP_BASE_URL}/users/${activeFriend}`, {
                 method: "GET",
                 headers: { Authorization: `Bearer ${token}` },
             });
@@ -74,7 +74,7 @@ const ChatContainer = () => {
             try {
                 setLoading(true);
                 if (selectedChat._id !== undefined) {
-                    const response = await fetch(`http://localhost:3001/message/${selectedChat._id}`, {
+                    const response = await fetch(`${process.env.REACT_APP_BASE_URL}/message/${selectedChat._id}`, {
                         method: "GET",
                         headers: {
                             "Content-Type": "application/json",

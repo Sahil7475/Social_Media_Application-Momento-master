@@ -32,7 +32,7 @@ Friend = ({ friendId, name, subtitle, userPicturePath, isChat, isSearch, isGroup
     const accessChat = async () => {
         try {
             setLoadingChat(true);
-            const response = await fetch(`http://localhost:3001/chat`, {
+            const response = await fetch(`${process.env.REACT_APP_BASE_URL}/chat`, {
                 method: "POST",
                 body: JSON.stringify({
                     userId: _id,
@@ -67,7 +67,7 @@ Friend = ({ friendId, name, subtitle, userPicturePath, isChat, isSearch, isGroup
     const patchFriend = async () => {
         try{
             const response = await fetch(
-                `http://localhost:3001/users/${_id}/${friendId}`,
+                `${process.env.REACT_APP_BASE_URL}/users/${_id}/${friendId}`,
                 {
                     method: "POST",
                     headers: {

@@ -96,7 +96,7 @@ const Navbar = () => {
         }
         try {
             setLoading(true);
-            const response = await fetch(`http://localhost:3001/users?search=${search}`, {
+            const response = await fetch(`${process.env.REACT_APP_BASE_URL}/users?search=${search}`, {
                 method: "GET",
                 headers: { Authorization: `Bearer ${token}` },
             });

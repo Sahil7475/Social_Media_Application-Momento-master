@@ -6,7 +6,7 @@ import SendIcon from '@mui/icons-material/Send';
 import Picker from "emoji-picker-react";
 import { useSelector } from 'react-redux';
 import { io } from 'socket.io-client';
-const ENDPOINT = 'http://localhost:3001';
+const ENDPOINT = `${process.env.REACT_APP_BASE_URL}`;
 var socket, selectedChatCompare;
 
 const ChatInput = ({ fetchMessages }) => {
@@ -43,7 +43,7 @@ const ChatInput = ({ fetchMessages }) => {
     const sendMessage = async () => {
         socket.emit("stop typing", selectedChat._id);
         try {
-            const response = await fetch(`http://localhost:3001/message`, {
+            const response = await fetch(`${process.env.REACT_APP_BASE_URL}/message`, {
                 method: "POST",
                 body: JSON.stringify({
                     sender: _id,
