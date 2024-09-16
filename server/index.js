@@ -85,7 +85,8 @@ mongoose
             pingTimeout: 60000,
             cors: {
                 origin: process.env.CLIENT_URL,
-                // credentials: true,
+                methods: ["GET", "POST","PUT"],  // Specify allowed methods if needed
+                credentials: true, 
             },
         });
 
