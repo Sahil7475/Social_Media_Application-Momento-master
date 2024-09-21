@@ -82,7 +82,6 @@ mongoose
 
         // Now create the Socket.IO server using the same server instance
         const io = new Server(server, {
-            pingTimeout: 60000,
             cors: {
                 origin: process.env.CLIENT_URL,
                 methods: ["GET", "POST","PUT"],  // Specify allowed methods if needed
