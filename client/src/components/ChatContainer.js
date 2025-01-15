@@ -61,7 +61,7 @@ const ChatContainer = () => {
                   console.log("in if condition");
                     dispatch(setNotification([newMessage, ...notification]));
                     /*  setFetchAgain(!fetchAgain); */
-                    //        fetchMessages();
+                     fetchMessages();
                 }
                 else {
                 setMessages([...messages, newMessage]);

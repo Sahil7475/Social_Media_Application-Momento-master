@@ -91,6 +91,9 @@ const ChatInput = ({ fetchMessages }) => {
             }
         }, timerLength);
     };
+
+
+    
     return (
 
         <Box
