@@ -7,7 +7,7 @@ import Picker from "emoji-picker-react";
 import { useSelector } from 'react-redux';
 import { io } from 'socket.io-client';
 const ENDPOINT = `${process.env.REACT_APP_BASE_URL}`;
-var socket, selectedChatCompare;
+var socket;
 
 const ChatInput = ({ fetchMessages }) => {
     const [showEmojiPicker, setShowEmojiPicker] = useState(false);
@@ -28,6 +28,7 @@ const ChatInput = ({ fetchMessages }) => {
     const handleEmojiPickerhideShow = () => {
         setShowEmojiPicker(!showEmojiPicker);
     };
+
     useEffect(() => {
         socket = socket || io(ENDPOINT);
 
@@ -38,8 +39,8 @@ const ChatInput = ({ fetchMessages }) => {
         });
         socket.on("stop typing", () => setIsTyping(false));
 
-        // eslint-disable-next-line
     }, [selectedChat._id]);
+
     const sendMessage = async () => {
         socket.emit("stop typing", selectedChat._id);
         try {
@@ -57,11 +58,9 @@ const ChatInput = ({ fetchMessages }) => {
             });
             const data = await response.json();
 
-            console.log("In send message frontend");
 
             setNewMessage(data)
             socket.emit("new message", data);
-            console.log("I'm there in chatInput", JSON.stringify(data, null, 2));
 
             fetchMessages()
 
@@ -71,6 +70,9 @@ const ChatInput = ({ fetchMessages }) => {
             console.log("error on send message")
         }
     }
+
+
+
     const typingHandler = (e) => {
         setNewMessage(e.target.value);
 
@@ -93,7 +95,7 @@ const ChatInput = ({ fetchMessages }) => {
     };
 
 
-    
+
     return (
 
         <Box

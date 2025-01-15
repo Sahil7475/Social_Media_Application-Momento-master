@@ -1,16 +1,15 @@
 import React from 'react';
-import { Box, Typography, useMediaQuery, useTheme } from "@mui/material";
-import { useEffect, useState } from "react";
+import { Box, Typography, useTheme } from "@mui/material";
+import { useEffect, useState,useCallback } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setActiveFriend, setNotification } from 'state';
-import { resetActiveFriend } from 'state';
 import FlexBetween from './FlexBetween';
 import UserImage from './UserImage';
 import ChatInput from './ChatInput';
 import Message from './Message';
 import { io } from 'socket.io-client';
 const ENDPOINT = `${process.env.REACT_APP_BASE_URL}`;
-var socket, selectedChatCompare;
+var socket;
 
 
 const ChatContainer = () => {
@@ -22,11 +21,10 @@ const ChatContainer = () => {
     const { _id } = useSelector((state) => state.user);
     const [messages, setMessages] = useState('');
     const friends = useSelector((state)=>state.user.friends);
-    const [loading, setLoading] = useState(true);
     const [socketConnected, setSocketConnected] = useState(false);
     const notification = useSelector((state) => state.notification);
     const dispatch = useDispatch();
-    const isNonMobileScreens = useMediaQuery("(min-width:1000px)");
+
 
     useEffect(() => {
         socket = io(ENDPOINT);
@@ -35,11 +33,15 @@ const ChatContainer = () => {
             setSocketConnected(true)
         }
         );
-    }, []);
 
+        return () => {
+          socket.disconnect(); 
+          setSocketConnected(false);
+        };
 
+    }, [_id]);
 
-    const getUser = async () => {
+    const getUser =useCallback(async () => {
         if(activeFriend){
             const response = await fetch(`${process.env.REACT_APP_BASE_URL}/users/${activeFriend}`, {
                 method: "GET",
@@ -48,57 +50,60 @@ const ChatContainer = () => {
             const data = await response.json();
             setUser(data);
         }
-    };
+    },[activeFriend,token]);
 
-    useEffect(() => {
+
+    const fetchMessages = useCallback(async () => {
+      if (!selectedChat._id) return; 
+  
+      try {
+        const response = await fetch(
+          `${process.env.REACT_APP_BASE_URL}/message/${selectedChat._id}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            }
+          }
+        );
+  
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+  
+        const data = await response.json();
+        setMessages(data);
+        socket.emit("join chat", selectedChat._id); 
+      } catch (error) {
+        console.error("Error fetching messages:", error.message);
+      } 
+    }, [selectedChat._id, token]);
+
+   
+
+
+    const messageReceivedHandler =useCallback(() =>{
+        if(!socketConnected) return;
         socket.on("messagereceived", (newMessage) => {
-          console.log("I'm there in chatcontainer", JSON.stringify(newMessage, null, 2));
-          console.log("compare id",selectedChatCompare._id);
-          console.log("newmessage.chat._id",newMessage.chat._id); 
-          
-         
                 if (!notification.includes(newMessage)) {
-                  console.log("in if condition");
                     dispatch(setNotification([newMessage, ...notification]));
-                    /*  setFetchAgain(!fetchAgain); */
-                     fetchMessages();
+                    fetchMessages();
                 }
                 else {
                 setMessages([...messages, newMessage]);
                 }
         });
-    },[dispatch, messages, notification]);
-
-    const fetchMessages = async () => {
-        
-            try {
-                setLoading(true);
-                if (selectedChat._id !== undefined) {
-                    const response = await fetch(`${process.env.REACT_APP_BASE_URL}/message/${selectedChat._id}`, {
-                        method: "GET",
-                        headers: {
-                            "Content-Type": "application/json",
-                            Authorization: `Bearer ${token}`
-                        }
-                    });
-
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-
-                    const data = await response.json();
-                    setMessages(data);
-                    socket.emit("join chat", selectedChat._id);
-                }
-            } catch (error) {
-                console.log("Error fetching messages:", error);
-            } finally {
-                setLoading(false); // Ensure loading state is reset even if an error occurs
-            }
-        
-    };
+    },[dispatch,notification,messages,fetchMessages,socketConnected])
+    
 
 
+    useEffect(() => {
+      messageReceivedHandler();
+      return () => socket.off("messagereceived");
+    }, [messages, notification,messageReceivedHandler]);
+
+  
     useEffect(() => {
       if(!friends.some(friend => friend._id === activeFriend)){
         dispatch(setActiveFriend(null));
@@ -108,12 +113,11 @@ const ChatContainer = () => {
       } else {
         getUser();
       }
-    }, [friends,activeFriend]);// eslint-disable-line react-hooks/exhaustive-deps
+    }, [friends,activeFriend,getUser,dispatch]);
 
     useEffect(() => {
         fetchMessages();
-        selectedChatCompare = selectedChat;
-    }, [selectedChat]);// eslint-disable-line react-hooks/exhaustive-deps
+    }, [fetchMessages]);
 
    
 

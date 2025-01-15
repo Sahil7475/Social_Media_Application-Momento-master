@@ -5,19 +5,15 @@ import { useNavigate } from "react-router-dom";
 import { setFriends, setActiveFriend, setChat, setSelectedChat } from "state";
 import FlexBetween from "./FlexBetween";
 import UserImage from "./UserImage";
-import { useState } from "react";
 
-const 
-Friend = ({ friendId, name, subtitle, userPicturePath, isChat, isSearch, isGroupChat }) => {
+
+const Friend = ({ friendId, name, subtitle, userPicturePath, isChat, isSearch, isGroupChat }) => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const { _id } = useSelector((state) => state.user);
     const token = useSelector((state) => state.token);
-    const users = useSelector((state)=>state.user);
     const friends = useSelector((state) => state.user.friends);
     const chat = useSelector((state) => state.chat);
-    const selectedChat = useSelector((state) => state.selectedChat);
-    const [loadingChat, setLoadingChat] = useState(true)
 
     const { palette } = useTheme();
     const primaryLight = palette.primary.light;
@@ -31,7 +27,6 @@ Friend = ({ friendId, name, subtitle, userPicturePath, isChat, isSearch, isGroup
 
     const accessChat = async () => {
         try {
-            setLoadingChat(true);
             const response = await fetch(`${process.env.REACT_APP_BASE_URL}/chat`, {
                 method: "POST",
                 body: JSON.stringify({
@@ -49,14 +44,13 @@ Friend = ({ friendId, name, subtitle, userPicturePath, isChat, isSearch, isGroup
             }
 
             dispatch(setSelectedChat(data));
-            setLoadingChat(false);
         } catch (error) {
             console.log("error on access chat")
         }
     };
     const handleClick = () => {
        
-            dispatch(setActiveFriend(friendId)); // Dispatch setActiveFriend action when the friend is clicked
+            dispatch(setActiveFriend(friendId)); 
      
             accessChat()
         
@@ -86,7 +80,7 @@ Friend = ({ friendId, name, subtitle, userPicturePath, isChat, isSearch, isGroup
 
     const handleProfileClick = () => {
         if (!isChat || isSearch) {
-            navigate(`/profile/${friendId}?`); // Append the isChat query parameter to the URL
+            navigate(`/profile/${friendId}?`); 
             navigate(0);
         }
         if (isChat) {
